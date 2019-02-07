@@ -10,14 +10,14 @@
         <% if(errorMessage){ %>
             <div class="user-message user-message--error"><%= errorMessage %></div>
         <% } %>
-        <form class="login-form" action="/login" method="POST" novalidate>
+        <form class="login-form" action="/signup" method="POST" novalidate>
             <div class="form-control">
                 <label for="email">Email</label>
                 <input 
                 class="<%= validationError.find(e=>e.param==='email') ? 'invalid':'' %>"
                 type="email" 
                 name="email" 
-                id="email"
+                id="email" 
                 value="<%= oldInput.email %>">
             </div>
             <div class="form-control">
@@ -26,14 +26,20 @@
                 class="<%= validationError.find(e=>e.param==='password') ? 'invalid':'' %>"
                 type="password" 
                 name="password" 
-                id="password"
+                id="password" 
                 value="<%= oldInput.password %>">
             </div>
+            <div class="form-control">
+                <label for="conformPassword">Conform Password</label>
+                <input 
+                class="<%= validationError.find(e=>e.param==='conformPassword') ? 'invalid':'' %>"
+                type="password" 
+                name="conformPassword" 
+                id="conformPassword" 
+                value="<%= oldInput.conformPassword %>">
+            </div>
             <input type="hidden" name="_csrf" value="<%=csrfToken%>">
-            <button class="btn" type="submit">Login</button>
+            <button class="btn" type="submit">Sign Up</button>
         </form>
-        <div class="centered">
-            <a href="/reset">Reset Password</a>
-        </div>
     </main>
 <%- include('../includes/end.ejs') %>

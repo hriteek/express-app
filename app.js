@@ -4,6 +4,8 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const MongodbStore = require("connect-mongodb-session")(session);
+const csrf = require("csurf");
+const flash = require("connect-flash");
 
 const User = require("./models/user");
 const errorController = require("./controllers/error");
@@ -26,6 +28,7 @@ const store = new MongodbStore({
   uri: url,
   collection: "sessions"
 });
+const csrfProtection = csrf();
 
 app.use(
   session({
@@ -35,6 +38,9 @@ app.use(
     store: store
   })
 );
+
+app.use(csrfProtection);
+app.use(flash());
 
 app.use((req, res, next) => {
   //this middleware helps us to pass the user into req
@@ -49,6 +55,12 @@ app.use((req, res, next) => {
     .catch(err => console.log(err));
 });
 
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});
+
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
@@ -58,16 +70,16 @@ app.use(errorController.get404);
 mongoose
   .connect(url, { useNewUrlParser: true })
   .then(() => {
-    User.findOne().then(user => {
-      if (!user) {
-        const user = new User({
-          name: "Hriteek",
-          email: "test@gmail.com",
-          cart: []
-        });
-        user.save();
-      }
-    });
+    // User.findOne().then(user => {
+    //   if (!user) {
+    //     const user = new User({
+    //       name: "Hriteek",
+    //       email: "test@gmail.com",
+    //       cart: []
+    //     });
+    //     user.save();
+    //   }
+    // });
     // const user = new User({
     //   name: "Hriteek",
     //   email: "test@gmail.com",
