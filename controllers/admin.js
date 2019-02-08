@@ -2,6 +2,8 @@ const { validationResult } = require("express-validator/check");
 
 const Product = require("../models/product");
 
+const fileHelper = require("../util/file");
+
 exports.getAddProduct = (req, res, next) => {
   res.render("admin/edit-product", {
     pageTitle: "Add Product",
@@ -178,16 +180,42 @@ exports.getProducts = (req, res, next) => {
     });
 };
 
-exports.postDeleteProduct = (req, res, next) => {
-  const prodId = req.body.productId;
-  Product.deleteOne({ _id: prodId, userId: req.user._id })
+// exports.postDeleteProduct = (req, res, next) => {
+//   const prodId = req.body.productId;
+//   Product.findById(prodId)
+//     .then(product => {
+//       if (!product) {
+//         return next(new Error("Product not found"));
+//       }
+//       fileHelper.deleteFile(product.imageUrl);
+//       return Product.deleteOne({ _id: prodId, userId: req.user._id });
+//     })
+//     .then(() => {
+//       console.log("DESTROYED PRODUCT");
+//       res.redirect("/admin/products");
+//     })
+//     .catch(err => {
+//       const error = new Error(err);
+//       error.httpStatusCode = 500;
+//       return next(error);
+//     });
+// };
+
+exports.deleteProduct = (req, res, next) => {
+  const prodId = req.params.productId;
+  Product.findById(prodId)
+    .then(product => {
+      if (!product) {
+        return next(new Error("Product not found"));
+      }
+      fileHelper.deleteFile(product.imageUrl);
+      return Product.deleteOne({ _id: prodId, userId: req.user._id });
+    })
     .then(() => {
       console.log("DESTROYED PRODUCT");
-      res.redirect("/admin/products");
+      res.status(200).json({ message: "deleting product was successful!!!" });
     })
     .catch(err => {
-      const error = new Error(err);
-      error.httpStatusCode = 500;
-      return next(error);
+      res.status(400).json({ message: "Deleting product didn't work" });
     });
 };
